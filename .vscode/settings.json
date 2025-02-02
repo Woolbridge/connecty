@@ -1,0 +1,5 @@
+{
+    "php.version": "8.4",
+    "cmake.sourceDirectory": "C:/xampp/htdocs/connectify v1.2/frontend/linux",
+    "java.configuration.updateBuildConfiguration": "interactive"
+}
