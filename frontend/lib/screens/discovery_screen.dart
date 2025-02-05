@@ -6,7 +6,7 @@ import 'purchase_screen.dart';
 import 'profile_screen.dart';
 
 class DiscoveryScreen extends StatefulWidget {
-  const DiscoveryScreen({super.key});
+  const DiscoveryScreen({Key? key}) : super(key: key);
 
   @override
   _DiscoveryScreenState createState() => _DiscoveryScreenState();
@@ -15,7 +15,7 @@ class DiscoveryScreen extends StatefulWidget {
 class _DiscoveryScreenState extends State<DiscoveryScreen> {
   List nearbyUsers = [];
   bool _isLoading = false;
-  bool _isRefreshing = false; // To manage the state of the refresh button
+  bool _isRefreshing = false;
   final double _searchRadius = 10;
 
   @override
@@ -27,19 +27,13 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
   Future<void> _updateLocationAndFetchNearby() async {
     setState(() {
       _isLoading = true;
-      _isRefreshing = true; // Indicates refresh is in progress
+      _isRefreshing = true;
     });
-
     try {
-      // Fetch current location
       Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
       );
-
-      // Send updated location to the backend
       await ApiService().updateLocation(position.latitude, position.longitude);
-
-      // Fetch nearby users
       final response = await ApiService().getNearbyUsers(_searchRadius);
       if (response.statusCode == 200) {
         setState(() {
@@ -49,13 +43,12 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
         _showSnackBar('Failed to fetch nearby users');
       }
     } catch (e) {
-      debugPrint('Error fetching location or users: $e');
       _showSnackBar('An error occurred while refreshing: $e');
     } finally {
       if (mounted) {
         setState(() {
           _isLoading = false;
-          _isRefreshing = false; // Reset the refresh button state
+          _isRefreshing = false;
         });
       }
     }
@@ -69,10 +62,15 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
     }
   }
 
-  void _openChat(int userId) {
+  void _openChat(int userId, String userNickname) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => ChatScreen(otherUserId: userId)),
+      MaterialPageRoute(
+        builder: (_) => ChatScreen(
+          otherUserId: userId,
+          otherUserNickname: userNickname,
+        ),
+      ),
     );
   }
 
@@ -89,7 +87,6 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
       MaterialPageRoute(builder: (_) => const ProfileScreen()),
     );
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -122,7 +119,6 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                   : const Text('Refresh Location'),
             ),
           ),
-
           // Main Content
           Expanded(
             child: _isLoading
@@ -133,10 +129,11 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                         itemCount: nearbyUsers.length,
                         itemBuilder: (context, index) {
                           final user = nearbyUsers[index];
+                          final userName = user['nickname'] ?? user['name'] ?? 'Unknown';
                           return ListTile(
-                            title: Text(user['name'] ?? 'Unknown'),
+                            title: Text(userName),
                             subtitle: Text('User ID: ${user['id']}'),
-                            onTap: () => _openChat(user['id']),
+                            onTap: () => _openChat(user['id'], userName),
                           );
                         },
                       ),

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 
 class PurchaseScreen extends StatefulWidget {
-  const PurchaseScreen({super.key});
+  const PurchaseScreen({Key? key}) : super(key: key);
 
   @override
   State<PurchaseScreen> createState() => _PurchaseScreenState();

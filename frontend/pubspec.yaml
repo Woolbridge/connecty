@@ -40,6 +40,10 @@ dependencies:
   in_app_purchase: ^3.2.0
   shared_preferences: ^2.3.5
   flutter_secure_storage: ^9.2.4
+  laravel_echo: any
+  socket_io_client: ^2.0.0
+  http: any
+  emoji_picker_flutter: ^2.2.0   # Uncomment if you decide to use an emoji picker
 
 dev_dependencies:
   flutter_test:

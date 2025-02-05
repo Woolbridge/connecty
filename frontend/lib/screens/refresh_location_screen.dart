@@ -4,24 +4,21 @@ import 'package:dio/dio.dart';
 import 'package:geolocator/geolocator.dart';
 
 class RefreshLocationScreen extends StatefulWidget {
-  final String authToken; // Pass the auth token from login
-
-  const RefreshLocationScreen({super.key, required this.authToken});
+  final String authToken;
+  const RefreshLocationScreen({Key? key, required this.authToken}) : super(key: key);
 
   @override
   _RefreshLocationScreenState createState() => _RefreshLocationScreenState();
 }
 
 class _RefreshLocationScreenState extends State<RefreshLocationScreen> {
-  bool isButtonDisabled = false; // To manage cooldown state
+  bool isButtonDisabled = false;
   String statusMessage = "Press the button to refresh your location.";
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Refresh Location"),
-      ),
+      appBar: AppBar(title: const Text("Refresh Location")),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -29,14 +26,12 @@ class _RefreshLocationScreenState extends State<RefreshLocationScreen> {
             Text(
               statusMessage,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16),
+              style: const TextStyle(fontSize: 16),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: isButtonDisabled ? null : _refreshLocation,
-              child: Text(isButtonDisabled
-                  ? "Please wait..."
-                  : "Refresh Location"),
+              child: Text(isButtonDisabled ? "Please wait..." : "Refresh Location"),
             ),
           ],
         ),
@@ -48,24 +43,16 @@ class _RefreshLocationScreenState extends State<RefreshLocationScreen> {
     setState(() {
       statusMessage = "Fetching location...";
     });
-
     try {
-      // Get user's current location
       Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
       );
-
       double latitude = position.latitude;
       double longitude = position.longitude;
-
-      // Send location to the backend
       await _sendLocationToBackend(latitude, longitude);
-
       setState(() {
         statusMessage = "Location updated successfully!";
       });
-
-      // Start cooldown timer
       _startCooldown();
     } catch (e) {
       setState(() {
@@ -78,15 +65,10 @@ class _RefreshLocationScreenState extends State<RefreshLocationScreen> {
     try {
       Dio dio = Dio();
       dio.options.headers["Authorization"] = "Bearer ${widget.authToken}";
-
       final response = await dio.post(
         "http://127.0.0.1:8000/api/update-location",
-        data: {
-          "latitude": latitude,
-          "longitude": longitude,
-        },
+        data: {"latitude": latitude, "longitude": longitude},
       );
-
       if (response.statusCode == 200) {
         setState(() {
           statusMessage = "Location updated successfully!";
@@ -101,12 +83,11 @@ class _RefreshLocationScreenState extends State<RefreshLocationScreen> {
 
   void _startCooldown() {
     setState(() {
-      isButtonDisabled = true; // Disable the button
+      isButtonDisabled = true;
     });
-
-    Timer(Duration(seconds: 20), () {
+    Timer(const Duration(seconds: 20), () {
       setState(() {
-        isButtonDisabled = false; // Re-enable the button after 20 seconds
+        isButtonDisabled = false;
         statusMessage = "Press the button to refresh your location.";
       });
     });

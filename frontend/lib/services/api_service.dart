@@ -18,10 +18,10 @@ class ApiService {
   String? authToken;
 
   void setAuthToken(String token) {
-  authToken = token;
-  dio.options.headers['Authorization'] = 'Bearer $token';
-  print('Auth token set: $token'); // Ensure this prints a valid token
-}
+    authToken = token;
+    dio.options.headers['Authorization'] = 'Bearer $token';
+    print('Auth token set: $token');
+  }
 
   static Future<String?> getToken() async {
     final prefs = await SharedPreferences.getInstance();
@@ -45,14 +45,14 @@ class ApiService {
       rethrow;
     }
   }
-  Future<void> initializeAuth(Dio dio) async {
-  final token = await getToken();
-  if (token != null) {
-    dio.options.headers['Authorization'] = 'Bearer $token';
-    print('Token loaded: $token');
-  }
-}
 
+  Future<void> initializeAuth(Dio dio) async {
+    final token = await getToken();
+    if (token != null) {
+      dio.options.headers['Authorization'] = 'Bearer $token';
+      print('Token loaded: $token');
+    }
+  }
 
   Future<Response> register(String name, String email, String password) async {
     try {
@@ -67,13 +67,12 @@ class ApiService {
       rethrow;
     }
   }
-Future<void> saveToken(String token) async {
-  final prefs = await SharedPreferences.getInstance();
-  await prefs.setString('authToken', token);
-}
 
+  Future<void> saveToken(String token) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('authToken', token);
+  }
 
-  // Fetch user profile data
   Future<Response> getProfile() async {
     try {
       return await dio.get('/profile');
@@ -83,7 +82,6 @@ Future<void> saveToken(String token) async {
     }
   }
 
-  // Update user profile data
   Future<Response> updateProfile(Map<String, dynamic> data) async {
     try {
       return await dio.post('/update-profile', data: data);
@@ -92,7 +90,6 @@ Future<void> saveToken(String token) async {
       rethrow;
     }
   }
-
 
   Future<Response> getNearbyUsers(double radius) async {
     try {
@@ -110,13 +107,10 @@ Future<void> saveToken(String token) async {
         'latitude': lat,
         'longitude': lng,
       });
-      //print('Location updated: ${response.data}');
-      
     } on DioException catch (e) {
       _handleDioError(e);
       rethrow;
     }
-    print('Updating location: lat=$lat, lng=$lng');
   }
 
   Future<Response> getMessages(int userId) async {
@@ -134,6 +128,27 @@ Future<void> saveToken(String token) async {
         'receiver_id': receiverId,
         'message_text': messageText,
       });
+    } on DioException catch (e) {
+      _handleDioError(e);
+      rethrow;
+    }
+  }
+
+  Future<Response> sendTyping(int receiverId, bool isTyping) async {
+    try {
+      return await dio.post('/typing', data: {
+        'receiver_id': receiverId,
+        'is_typing': isTyping,
+      });
+    } on DioException catch (e) {
+      _handleDioError(e);
+      rethrow;
+    }
+  }
+
+  Future<Response> markAsRead(int messageId) async {
+    try {
+      return await dio.put('/messages/$messageId/read');
     } on DioException catch (e) {
       _handleDioError(e);
       rethrow;

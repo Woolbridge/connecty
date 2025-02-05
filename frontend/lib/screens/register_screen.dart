@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
-import 'discovery_screen.dart';
+import 'login_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
-  const RegisterScreen({super.key});
+  const RegisterScreen({Key? key}) : super(key: key);
 
   @override
-  _RegisterScreenState createState() => _RegisterScreenState();
+  State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
@@ -23,14 +23,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
         _emailController.text.trim(),
         _passwordController.text.trim(),
       );
-      if (response.statusCode == 201) {
-        final user = response.data['user'];
+      if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Registered: ${user['email']}')),
+          const SnackBar(content: Text('Registration successful!')),
         );
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => const DiscoveryScreen()),
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
         );
       }
     } catch (e) {
@@ -45,7 +44,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Connectify Register')),
+      appBar: AppBar(title: const Text('Register')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(

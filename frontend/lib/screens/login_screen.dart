@@ -5,7 +5,7 @@ import 'register_screen.dart';
 import 'refresh_location_screen.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  const LoginScreen({Key? key}) : super(key: key);
 
   @override
   _LoginScreenState createState() => _LoginScreenState();
@@ -27,12 +27,14 @@ class _LoginScreenState extends State<LoginScreen> {
         final token = response.data['token'];
         ApiService().setAuthToken(token);
         if (!mounted) return;
+        // First navigate to refresh location screen (if needed)
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => RefreshLocationScreen(authToken: token),
-        ),
+          ),
         );
+        // Then navigate to the discovery screen
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (_) => const DiscoveryScreen()),
@@ -68,7 +70,7 @@ class _LoginScreenState extends State<LoginScreen> {
             _isLoading
                 ? const CircularProgressIndicator()
                 : ElevatedButton(
-                    onPressed: _login, 
+                    onPressed: _login,
                     child: const Text('Login'),
                   ),
             TextButton(
