@@ -5,12 +5,20 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DiscoveryController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\TransactionController;
+use App\Http\Controllers\ProfileController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::middleware('auth:api')->group(function () {
     // Discovery endpoints
+
+    Route::get('/profile', [ProfileController::class, 'show']);
+    Route::post('/profile/update', [ProfileController::class, 'update']);
+    Route::post('/profile/avatar', [ProfileController::class, 'uploadAvatar']);
+
+
+
     Route::get('/nearby-users', [DiscoveryController::class, 'getNearbyUsers']);
     Route::post('/update-location', [DiscoveryController::class, 'updateLocation']);
 

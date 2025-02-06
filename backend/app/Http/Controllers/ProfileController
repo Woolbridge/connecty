@@ -1,0 +1,101 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use App\Models\Profile;
+use Illuminate\Validation\Rule;
+
+class ProfileController extends Controller
+{
+    /**
+     * Show the authenticated user's profile data.
+     */
+    public function show(Request $request)
+    {
+        // Retrieve the user's profile
+        $profile = $request->user()->profile;
+
+        if (!$profile) {
+            // Optionally, create a profile row if it doesn't exist
+            $profile = Profile::create(['user_id' => $request->user()->id]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'profile' => $profile,
+        ], 200);
+    }
+
+    /**
+     * Update the authenticated user's profile fields.
+     */
+    public function update(Request $request)
+    {
+        // Retrieve the current user's profile
+        $profile = $request->user()->profile;
+        if (!$profile) {
+            // create a profile row if it doesn't exist
+            $profile = Profile::create(['user_id' => $request->user()->id]);
+        }
+
+        // Validate incoming data (adjust rules as you see fit)
+        $request->validate([
+            'bio'          => 'nullable|string',
+            'instagram'    => 'nullable|string',
+            'twitter'      => 'nullable|string',
+            'linkedin'     => 'nullable|string',
+            'facebook'     => 'nullable|string',
+            'music_anthem' => 'nullable|string',
+        ]);
+
+        // Fill only the fields we allow to be updated
+        $profile->fill($request->only([
+            'bio',
+            'instagram',
+            'twitter',
+            'linkedin',
+            'facebook',
+            'music_anthem',
+        ]));
+        $profile->save();
+
+        return response()->json([
+            'success' => true,
+            'profile' => $profile,
+        ], 200);
+    }
+
+    /**
+     * Upload a custom avatar for the authenticated user.
+     */
+    public function uploadAvatar(Request $request)
+    {
+        $profile = $request->user()->profile;
+        if (!$profile) {
+            // Optionally create a profile row if it doesn't exist
+            $profile = Profile::create(['user_id' => $request->user()->id]);
+        }
+
+        // Validate that 'avatar' is an image
+        $request->validate([
+            'avatar' => 'required|image|max:2048', // 2MB limit, adjust as needed
+        ]);
+
+        // Store the uploaded file in the 'public' disk under 'avatars'
+        $path = $request->file('avatar')->store('avatars', 'public');
+        // Generate a publicly accessible URL for the avatar
+        $url = Storage::url($path);
+
+        // Update the profile's avatar_url
+        $profile->avatar_url = $url;
+        $profile->save();
+
+        return response()->json([
+            'success' => true,
+            'avatar_url' => $url,
+            'message' => 'Avatar uploaded successfully',
+        ], 200);
+    }
+}

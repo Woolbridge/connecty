@@ -17,12 +17,14 @@ class ApiService {
 
   String? authToken;
 
+  /// Sets the token in the instance variable and in Dio's headers.
   void setAuthToken(String token) {
     authToken = token;
     dio.options.headers['Authorization'] = 'Bearer $token';
     print('Auth token set: $token');
   }
 
+  /// Retrieves the token from SharedPreferences.
   static Future<String?> getToken() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('authToken');
@@ -68,6 +70,7 @@ class ApiService {
     }
   }
 
+  /// Save token in SharedPreferences.
   Future<void> saveToken(String token) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('authToken', token);
@@ -91,7 +94,25 @@ class ApiService {
     }
   }
 
+  Future<Response> uploadAvatar(String filePath) async {
+    try {
+      FormData formData = FormData.fromMap({
+        'avatar': await MultipartFile.fromFile(filePath, filename: 'avatar.jpg'),
+      });
+      return await dio.post('/profile/avatar', data: formData);
+    } on DioException catch (e) {
+      _handleDioError(e);
+      rethrow;
+    }
+  }
+
   Future<Response> getNearbyUsers(double radius) async {
+    // Retrieve token either from the instance or from SharedPreferences.
+    final token = authToken ?? await getToken();
+    if (token == null || token.isEmpty) {
+      throw Exception("No auth token found. Please sign in.");
+    }
+    setAuthToken(token); // Update headers with current token.
     try {
       return await dio.get('/nearby-users?radius=$radius');
     } on DioException catch (e) {
@@ -101,7 +122,11 @@ class ApiService {
   }
 
   Future<Response> updateLocation(double lat, double lng) async {
-    dio.options.headers['Authorization'] = 'Bearer $authToken';
+    final token = authToken ?? await getToken();
+    if (token == null || token.isEmpty) {
+      throw Exception("No auth token found. Please sign in.");
+    }
+    setAuthToken(token);
     try {
       return await dio.post('/update-location', data: {
         'latitude': lat,
@@ -161,6 +186,25 @@ class ApiService {
         'amount': amount,
         'transaction_type': type,
       });
+    } on DioException catch (e) {
+      _handleDioError(e);
+      rethrow;
+    }
+  }
+
+  /// Post-related methods
+  Future<Response> getPosts(int userId) async {
+    try {
+      return await dio.get('/posts/$userId');
+    } on DioException catch (e) {
+      _handleDioError(e);
+      rethrow;
+    }
+  }
+
+  Future<Response> createPost(Map<String, dynamic> data) async {
+    try {
+      return await dio.post('/posts', data: data);
     } on DioException catch (e) {
       _handleDioError(e);
       rethrow;

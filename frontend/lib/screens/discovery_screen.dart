@@ -30,6 +30,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
       _isRefreshing = true;
     });
     try {
+      // Get current location
       Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
       );
@@ -94,6 +95,12 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
       appBar: AppBar(
         title: const Text('Connectify Discovery'),
         actions: [
+          // Profile button
+          IconButton(
+            icon: const Icon(Icons.account_circle),
+            onPressed: _openProfileScreen,
+          ),
+          // Purchase button
           IconButton(
             icon: const Icon(Icons.attach_money),
             onPressed: _openPurchaseScreen,
@@ -129,7 +136,8 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                         itemCount: nearbyUsers.length,
                         itemBuilder: (context, index) {
                           final user = nearbyUsers[index];
-                          final userName = user['nickname'] ?? user['name'] ?? 'Unknown';
+                          final userName =
+                              user['nickname'] ?? user['name'] ?? 'Unknown';
                           return ListTile(
                             title: Text(userName),
                             subtitle: Text('User ID: ${user['id']}'),

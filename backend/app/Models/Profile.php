@@ -11,6 +11,8 @@ class Profile extends Model
 
     protected $fillable = [
         'user_id',
+        'avatar_url',     // New: for user avatar photo
+        'music_anthem',   // New: for user’s music anthem
         'bio',
         'instagram',
         'twitter',

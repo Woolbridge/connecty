@@ -15,6 +15,8 @@ class CreateProfilesTable extends Migration
             $table->string('twitter')->nullable();
             $table->string('linkedin')->nullable();
             $table->string('facebook')->nullable();
+            $table->string('avatar_url')->nullable();    // store image URL
+            $table->string('music_anthem')->nullable();  // store a link or text for the user’s anthem
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
@@ -23,6 +25,6 @@ class CreateProfilesTable extends Migration
 
     public function down()
     {
-        Schema::dropIfExists('profiles');
+        Schema::dropIfExists('profile');
     }
 }
